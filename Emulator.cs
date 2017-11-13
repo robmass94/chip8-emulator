@@ -57,7 +57,11 @@ class Emulator
 
     public void Start(string pathToROM)
     {
-
+        while (true)
+        {
+            opcode[0] = memory[PC];
+            opcode[1] = memory[PC + 1];
+        }
     }
 }
 

@@ -1,0 +1,10 @@
+E:\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.deps.json
+E:\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.runtimeconfig.json
+E:\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.runtimeconfig.dev.json
+E:\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.dll
+E:\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.pdb
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.csproj.CoreCompileInputs.cache
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.AssemblyInfoInputs.cache
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.AssemblyInfo.cs
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.dll
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.pdb

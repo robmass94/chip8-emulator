@@ -664,23 +664,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Rob\\.nuget\\packages\\": {},
+    "C:\\Users\\rmassicotte\\.nuget\\packages\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\chip8-emulator\\chip8-emulator.csproj",
+      "projectUniqueName": "C:\\Users\\rmassicotte\\Documents\\chip8-emulator\\chip8-emulator.csproj",
       "projectName": "chip8-emulator",
-      "projectPath": "E:\\chip8-emulator\\chip8-emulator.csproj",
-      "packagesPath": "C:\\Users\\Rob\\.nuget\\packages\\",
-      "outputPath": "E:\\chip8-emulator\\obj\\",
+      "projectPath": "C:\\Users\\rmassicotte\\Documents\\chip8-emulator\\chip8-emulator.csproj",
+      "packagesPath": "C:\\Users\\rmassicotte\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\rmassicotte\\Documents\\chip8-emulator\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Rob\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\rmassicotte\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"

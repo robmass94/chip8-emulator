@@ -3,13 +3,14 @@ using System.IO;
 
 class Emulator
 {
-    private byte[] opcode;
     private byte[] memory;
     private byte[] graphics;
-    private byte[] V;
+    private byte[] V; // general purpose registers V) through VE, carry register VF
     private byte delayTimer;
     private byte soundTimer;
     private byte key;
+
+    private ushort opcode;
     private ushort I;
     private ushort PC;
     private ushort[] stack;
@@ -37,30 +38,145 @@ class Emulator
 
     public Emulator(string pathToROM)
     {
-        opcode = new byte[2];
         memory = new byte[4096];
         graphics = new byte[2048];
         V = new byte[16];
         stack = new ushort[16];
 
-        PC = 0x200;
+        opcode = 0;
         I = 0;
+        PC = 0x200;
         SP = 0;
 
-        Array.Copy(fontSet, memory, fontSet.Length);
-        byte[] program = File.ReadAllBytes(pathToROM);
-        for (int i = 512; i < program.Length; ++i)
-        {
-            memory[i] = program[i];
-        }
+        fontSet.CopyTo(memory, 0);
+        File.ReadAllBytes(pathToROM).CopyTo(memory, 512);
     }
 
-    public void Start(string pathToROM)
+    public void Start()
     {
         while (true)
         {
-            opcode[0] = memory[PC];
-            opcode[1] = memory[PC + 1];
+            // fetch opcode
+            opcode = (ushort)(memory[PC++] << 8);
+            opcode |= memory[PC++];
+
+            // decode/execute opcode
+            switch (opcode & 0xF000)
+            {
+                case 0x0:
+                    switch (opcode & 0x0FFF)
+                    {
+                        case 0x0E0:
+                            // clear the screen
+                            break;
+                        case 0x0EE:
+                            // return from subroutine
+                            PC = stack[--SP];
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 0x1:
+                    // 1NNN - jump to address NNN
+                    PC = (ushort)(opcode & 0x0FFF);
+                    break;
+                case 0x2:
+                    // 2NNN - call subroutine at address NNN
+                    stack[SP++] = PC;
+                    PC = (ushort)(opcode & 0x0FFF);
+                    break;
+                case 0x3:
+                    // 3XNN - skip next instruction if register VX equals NN
+                    if (V[opcode & 0x0F00] == (opcode & 0x00FF))
+                    {
+                        PC += 2;
+                    }
+                    break;
+                case 0x4:
+                    // 4XNN - skip next instruction if register VX does not equal NN
+                    if (V[opcode & 0x0F00] != (opcode & 0x00FF))
+                    {
+                        PC += 2;
+                    }
+                    break;
+                case 0x5:
+                    // 5XY0 - skip next instruction if register VX equals register VY
+                    if (V[opcode & 0x0F00] == V[opcode & 0x00F0])
+                    {
+                        PC += 2;
+                    }
+                    break;
+                case 0x6:
+                    // 6XNN - set register VX to NN
+                    V[opcode & 0x0F00] = (byte)(opcode & 0x00FF);
+                    break;
+                case 0x7:
+                    // 7XNN - add NN to register VX
+                    V[opcode & 0x0F00] += (byte)(opcode & 0x00FF);
+                    break;
+                case 0x8:
+                    switch (opcode & 0x000F)
+                    {
+                        case 0x0:
+                            // 8XY0 - set register VX to register VY
+                            V[opcode & 0x0F00] = V[opcode & 0x00F0];
+                            break;
+                        case 0x1:
+                            // 8XY1 - set register VX to VX OR VY
+                            V[opcode & 0x0F00] |= V[opcode & 0x00F0];
+                            break;
+                        case 0x2:
+                            // 8XY2 - set register VX to VX AND VY
+                            V[opcode & 0x0F00] &= V[opcode & 0x00F0];
+                            break;
+                        case 0x3:
+                            // 8XY3 - set register VX to VX XOR VY
+                            V[opcode & 0x0F00] ^= V[opcode & 0x00F0];
+                            break;
+                        case 0x4:
+                            // 8XY4 - add register VY to register VX;
+                            // Set register VF to 1 if there's a carry, 0 if not
+                            V[0xF] = (V[opcode & 0x0F00] > 255 - V[opcode & 0x00F0]) ? 1 : 0;
+                            V[opcode & 0x0F00] += V[opcode & 0x00F0];
+                            break;
+                        case 0x5:
+                            // 8XY5 - subtract register VY from register VX;
+                            // set register VF to 0 if there's a borrow, 1 if not
+                            V[0xF] = (V[opcode & 0x00F0] > V[opcode & 0x0F00]) ? 0 : 1;
+                            V[opcode & 0x0F00] -= V[opcode & 0x00F0];
+                            break;
+                        case 0x6:
+                            // 8XY6 - shift register VY right by one and copy result into register VX;
+                            // set register VF to least significant bit of register VY before shift
+                            V[0xF] = V[opcode & 0x00F0] & 1;
+                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = V[0x00F0] >> 1;
+                            break;
+                        case 0x7:
+                            // 8XY7 - set register VX to VY - VX; set VF to 0 if there's a borrow, 1 if not
+                            break;
+                        case 0xE:
+                            // 8XYE
+                            break;
+                    }
+                    break;
+                case 0x9:
+                    break;
+                case 0xA:
+                    break;
+                case 0xB:
+                    break;
+                case 0xC:
+                    break;
+                case 0xD:
+                    break;
+                case 0xE:
+                    break;
+                case 0xF:
+                    break;
+                default:
+                    throw new Exception("Invalid instruction!");
+            }
         }
     }
 }
@@ -76,6 +192,6 @@ public class EmulatorMain
         }
 
         Emulator emulator = new Emulator(args[0]);
-        emulator.Start(args[0]);
+        emulator.Start();
     }
 }

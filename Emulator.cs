@@ -138,31 +138,31 @@ class Emulator
                         case 0x4:
                             // 8XY4 - add VY to VX;
                             // Set VF to 1 if there's a carry, 0 if not
-                            V[0xF] = (V[opcode & 0x0F00] > 255 - V[opcode & 0x00F0]) ? 1 : 0;
+                            V[0xF] = (V[opcode & 0x0F00] > 255 - V[opcode & 0x00F0]) ? (byte)1 : (byte)0;
                             V[opcode & 0x0F00] += V[opcode & 0x00F0];
                             break;
                         case 0x5:
                             // 8XY5 - subtract VY from VX;
                             // set VF to 0 if there's a borrow, 1 if not
-                            V[0xF] = (V[opcode & 0x00F0] > V[opcode & 0x0F00]) ? 0 : 1;
+                            V[0xF] = (V[opcode & 0x00F0] > V[opcode & 0x0F00]) ? (byte)0 : (byte)1;
                             V[opcode & 0x0F00] -= V[opcode & 0x00F0];
                             break;
                         case 0x6:
                             // 8XY6 - shift VY right by one and copy result into VX;
                             // set VF to least significant bit of VY before shift
-                            V[0xF] = V[opcode & 0x00F0] & 1;
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = V[0x00F0] >> 1;
+                            V[0xF] = (byte)(V[opcode & 0x00F0] & 1);
+                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = (byte)(V[0x00F0] >> 1);
                             break;
                         case 0x7:
                             // 8XY7 - set VX to VY - VX; set VF to 0 if there's a borrow, 1 if not
-                            V[0xF] = (V[opcode & 0x0F00] > V[opcode & 0x00F0]) ? 0 : 1;
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0] - V[opcode & 0x0F00];
+                            V[0xF] = (V[opcode & 0x0F00] > V[opcode & 0x00F0]) ? (byte)0 : (byte)1;
+                            V[opcode & 0x0F00] = (byte)(V[opcode & 0x00F0] - V[opcode & 0x0F00]);
                             break;
                         case 0xE:
                             // 8XYE - shift VY left by one and copy result into VX;
                             // set VF to most significant bit of VY before shift
-                            V[0xF] = V[opcode & 0x00F0] & 0x80;
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = V[opcode & 0x00F0] << 1;
+                            V[0xF] = (byte)(V[opcode & 0x00F0] & 0x80);
+                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = (byte)(V[opcode & 0x00F0] << 1);
                             break;
                         default:
                             throw new Exception("Invalid instruction!");
@@ -177,24 +177,26 @@ class Emulator
                     break;
                 case 0xA:
                     // ANNN - set index register to address NNN
-                    I = opcode & 0x0FFF;
+                    I = (ushort)(opcode & 0x0FFF);
                     break;
                 case 0xB:
                     // BNNN - jump to address NNN + V0
-                    PC = (opcode & 0x0FFF) + V[0];
+                    PC = (ushort)((opcode & 0x0FFF) + V[0]);
                     break;
                 case 0xC:
                     // CXNN - set VX to result of NN AND (random number from 0 to 255)
-                    V[opcode & 0x0F00] = (opcode & 0x00FF) & new Random().Next(256);
+                    V[opcode & 0x0F00] = (byte)((opcode & 0x00FF) & new Random().Next(256));
                     break;
                 case 0xD:
+                    // DXYN - draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and height of N pixels;
+                    // each row of 8 pixels is read as bit-coded starting from memory location I;
+                    // VF is set to 1 if any screen pixels are flipped from set to unset when sprite is drawn, 0 if not
                     break;
                 case 0xE:
                     switch (opcode & 0x00F0)
                     {
                         case 0x9:
                             // EX9E - skip next instruction if key stored in VX is pressed
-                            Console.
                             break;
                         case 0xA:
                             // EXA1 - skip next instruction if key stored in VX isn't pressed
@@ -207,22 +209,48 @@ class Emulator
                     switch (opcode & 0x00FF)
                     {
                         case 0x07:
+                            // FX07 - set VX to value of delay timer
+                            V[opcode & 0x0F00] = delayTimer;
                             break;
                         case 0x0A:
+                            // FX0A - await key press, then store in VX
                             break;
                         case 0x15:
+                            // FX15 - set delay timer to VX
+                            delayTimer = V[opcode & 0x0F00];
                             break;
                         case 0x18:
+                            // FX18 - set sound timer to VX
+                            soundTimer = V[opcode & 0x0F00];
                             break;
                         case 0x1E:
+                            // FX1E - add VX to I
+                            I += V[opcode & 0x0F00];
                             break;
                         case 0x29:
+                            // FX29 - set I to the location of the sprite for the character in VX
                             break;
                         case 0x33:
+                            // FX33 - store the binary-coded decimal representation of VX, with the most signficant of three digits at the address in I,
+                            // the middle digit at I + 1, and the least significant digit at I + 2
+                            byte VX = V[opcode & 0x0F00];
+                            memory[I] = (byte)(VX / 100);
+                            memory[I + 1] = (byte)((VX % 100) / 10);
+                            memory[I + 2] = (byte)(VX % 10);
                             break;
                         case 0x55:
+                            // FX55 - store V0 to VX (inclusive) in memory starting at address I
+                            for (int i = 0; i <= (opcode & 0x0F00); ++i)
+                            {
+                                memory[I + i] = V[i];
+                            }
                             break;
                         case 0x65:
+                            // FX65 - fill V0 to VX (inclusive) with values from memory starting at address I
+                            for (int i = 0; i <= (opcode & 0x0F00); ++i)
+                            {
+                                V[i] = memory[I + i];
+                            }
                             break;
                         default:
                             throw new Exception("Invalid instruction!");

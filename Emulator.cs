@@ -78,154 +78,154 @@ class Emulator
                             break;
                     }
                     break;
-                case 0x1:
+                case 0x1000:
                     // 1NNN - jump to address NNN
                     PC = (ushort)(opcode & 0x0FFF);
                     break;
-                case 0x2:
+                case 0x2000:
                     // 2NNN - call subroutine at address NNN
                     stack[SP++] = PC;
                     PC = (ushort)(opcode & 0x0FFF);
                     break;
-                case 0x3:
+                case 0x3000:
                     // 3XNN - skip next instruction if VX equals NN
-                    if (V[opcode & 0x0F00] == (opcode & 0x00FF))
+                    if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
                     {
                         PC += 2;
                     }
                     break;
-                case 0x4:
+                case 0x4000:
                     // 4XNN - skip next instruction if VX does not equal NN
-                    if (V[opcode & 0x0F00] != (opcode & 0x00FF))
+                    if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF))
                     {
                         PC += 2;
                     }
                     break;
-                case 0x5:
+                case 0x5000:
                     // 5XY0 - skip next instruction if VX equals VY
-                    if (V[opcode & 0x0F00] == V[opcode & 0x00F0])
+                    if (V[(opcode & 0x0F00) >> 8] == V[opcode & 0x00F0])
                     {
                         PC += 2;
                     }
                     break;
-                case 0x6:
+                case 0x6000:
                     // 6XNN - set VX to NN
-                    V[opcode & 0x0F00] = (byte)(opcode & 0x00FF);
+                    V[(opcode & 0x0F00) >> 8] = (byte)(opcode & 0x00FF);
                     break;
-                case 0x7:
+                case 0x7000:
                     // 7XNN - add NN to VX
-                    V[opcode & 0x0F00] += (byte)(opcode & 0x00FF);
+                    V[(opcode & 0x0F00) >> 8] += (byte)(opcode & 0x00FF);
                     break;
-                case 0x8:
+                case 0x8000:
                     switch (opcode & 0x000F)
                     {
                         case 0x0:
                             // 8XY0 - set VX to VY
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0];
+                            V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x1:
                             // 8XY1 - set VX to VX OR VY
-                            V[opcode & 0x0F00] |= V[opcode & 0x00F0];
+                            V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x2:
                             // 8XY2 - set VX to VX AND VY
-                            V[opcode & 0x0F00] &= V[opcode & 0x00F0];
+                            V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x3:
                             // 8XY3 - set VX to VX XOR VY
-                            V[opcode & 0x0F00] ^= V[opcode & 0x00F0];
+                            V[(opcode & 0x0F00) >> 8] ^= V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x4:
                             // 8XY4 - add VY to VX;
                             // Set VF to 1 if there's a carry, 0 if not
-                            V[0xF] = (V[opcode & 0x0F00] > 255 - V[opcode & 0x00F0]) ? (byte)1 : (byte)0;
-                            V[opcode & 0x0F00] += V[opcode & 0x00F0];
+                            V[0xF] = (V[(opcode & 0x0F00) >> 8] > 255 - V[(opcode & 0x00F0) >> 4]) ? (byte)1 : (byte)0;
+                            V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x5:
                             // 8XY5 - subtract VY from VX;
                             // set VF to 0 if there's a borrow, 1 if not
-                            V[0xF] = (V[opcode & 0x00F0] > V[opcode & 0x0F00]) ? (byte)0 : (byte)1;
-                            V[opcode & 0x0F00] -= V[opcode & 0x00F0];
+                            V[0xF] = (V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8]) ? (byte)0 : (byte)1;
+                            V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
                             break;
                         case 0x6:
                             // 8XY6 - shift VY right by one and copy result into VX;
                             // set VF to least significant bit of VY before shift
-                            V[0xF] = (byte)(V[opcode & 0x00F0] & 1);
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = (byte)(V[0x00F0] >> 1);
+                            V[0xF] = (byte)(V[(opcode & 0x00F0) >> 4] & 1);
+                            V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] = (byte)(V[0x00F0] >> 1);
                             break;
                         case 0x7:
                             // 8XY7 - set VX to VY - VX; set VF to 0 if there's a borrow, 1 if not
-                            V[0xF] = (V[opcode & 0x0F00] > V[opcode & 0x00F0]) ? (byte)0 : (byte)1;
-                            V[opcode & 0x0F00] = (byte)(V[opcode & 0x00F0] - V[opcode & 0x0F00]);
+                            V[0xF] = (V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4]) ? (byte)0 : (byte)1;
+                            V[(opcode & 0x0F00) >> 8] = (byte)(V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8]);
                             break;
                         case 0xE:
                             // 8XYE - shift VY left by one and copy result into VX;
                             // set VF to most significant bit of VY before shift
-                            V[0xF] = (byte)(V[opcode & 0x00F0] & 0x80);
-                            V[opcode & 0x0F00] = V[opcode & 0x00F0] = (byte)(V[opcode & 0x00F0] << 1);
+                            V[0xF] = (byte)(V[(opcode & 0x00F0) >> 4] & 0x80);
+                            V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] = (byte)(V[(opcode & 0x00F0) >> 4] << 1);
                             break;
                         default:
                             throw new Exception("Invalid instruction!");
                     }
                     break;
-                case 0x9:
+                case 0x9000:
                     // 0x9XY0 - skip next instruction if VX != VY
-                    if (V[opcode & 0x0F00] != V[opcode & 0x00F0])
+                    if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4])
                     {
                         PC += 2;
                     }
                     break;
-                case 0xA:
+                case 0xA000:
                     // ANNN - set index register to address NNN
                     I = (ushort)(opcode & 0x0FFF);
                     break;
-                case 0xB:
+                case 0xB000:
                     // BNNN - jump to address NNN + V0
                     PC = (ushort)((opcode & 0x0FFF) + V[0]);
                     break;
-                case 0xC:
+                case 0xC000:
                     // CXNN - set VX to result of NN AND (random number from 0 to 255)
-                    V[opcode & 0x0F00] = (byte)((opcode & 0x00FF) & new Random().Next(256));
+                    V[(opcode & 0x0F00) >> 8] = (byte)((opcode & 0x00FF) & new Random().Next(256));
                     break;
-                case 0xD:
+                case 0xD000:
                     // DXYN - draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and height of N pixels;
                     // each row of 8 pixels is read as bit-coded starting from memory location I;
                     // VF is set to 1 if any screen pixels are flipped from set to unset when sprite is drawn, 0 if not
                     break;
-                case 0xE:
+                case 0xE000:
                     switch (opcode & 0x00F0)
                     {
-                        case 0x9:
+                        case 0x90:
                             // EX9E - skip next instruction if key stored in VX is pressed
                             break;
-                        case 0xA:
+                        case 0xA0:
                             // EXA1 - skip next instruction if key stored in VX isn't pressed
                             break;
                         default:
                             throw new Exception("Invalid instruction!");
                     }
                     break;
-                case 0xF:
+                case 0xF000:
                     switch (opcode & 0x00FF)
                     {
                         case 0x07:
                             // FX07 - set VX to value of delay timer
-                            V[opcode & 0x0F00] = delayTimer;
+                            V[(opcode & 0x0F00) >> 8] = delayTimer;
                             break;
                         case 0x0A:
                             // FX0A - await key press, then store in VX
                             break;
                         case 0x15:
                             // FX15 - set delay timer to VX
-                            delayTimer = V[opcode & 0x0F00];
+                            delayTimer = V[(opcode & 0x0F00) >> 8];
                             break;
                         case 0x18:
                             // FX18 - set sound timer to VX
-                            soundTimer = V[opcode & 0x0F00];
+                            soundTimer = V[(opcode & 0x0F00) >> 8];
                             break;
                         case 0x1E:
                             // FX1E - add VX to I
-                            I += V[opcode & 0x0F00];
+                            I += V[(opcode & 0x0F00) >> 8];
                             break;
                         case 0x29:
                             // FX29 - set I to the location of the sprite for the character in VX
@@ -233,21 +233,21 @@ class Emulator
                         case 0x33:
                             // FX33 - store the binary-coded decimal representation of VX, with the most signficant of three digits at the address in I,
                             // the middle digit at I + 1, and the least significant digit at I + 2
-                            byte VX = V[opcode & 0x0F00];
+                            byte VX = V[(opcode & 0x0F00) >> 8];
                             memory[I] = (byte)(VX / 100);
                             memory[I + 1] = (byte)((VX % 100) / 10);
                             memory[I + 2] = (byte)(VX % 10);
                             break;
                         case 0x55:
                             // FX55 - store V0 to VX (inclusive) in memory starting at address I
-                            for (int i = 0; i <= (opcode & 0x0F00); ++i)
+                            for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
                             {
                                 memory[I + i] = V[i];
                             }
                             break;
                         case 0x65:
                             // FX65 - fill V0 to VX (inclusive) with values from memory starting at address I
-                            for (int i = 0; i <= (opcode & 0x0F00); ++i)
+                            for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
                             {
                                 V[i] = memory[I + i];
                             }

@@ -266,6 +266,7 @@ namespace Emulator
                             break;
                         case 0x29:
                             // FX29 - set I to the location of the sprite for the character in VX
+                            I = (ushort)(V[opcode.X] * 5);
                             break;
                         case 0x33:
                             // FX33 - store the binary-coded decimal representation of VX, with the most signficant of three digits at the address in I,

@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Emulator 
 {
     class OpcodeData
     {
-        public ushort Opcode { get; set; } // full opcode
+        public ushort FullOpcode { get; set; } // full opcode
         public ushort NNN { get; set; } // last three nibbles
         public byte X { get; set; } // second nibble
         public byte Y { get; set; } // third nibble
@@ -27,6 +28,7 @@ namespace Emulator
         private ushort PC; // program counter
         private ushort[] stack;
         private ushort SP; // stack pointer
+        private HashSet<byte> pressedKeys;
 
         private byte[] fontSet = 
         {
@@ -54,6 +56,7 @@ namespace Emulator
             graphics = new bool[SCREEN_WIDTH, SCREEN_HEIGHT];
             V = new byte[16];
             stack = new ushort[16];
+            pressedKeys = new HashSet<byte>();
 
             I = 0;
             PC = 0x200;
@@ -71,7 +74,7 @@ namespace Emulator
                 ushort fetchedOpcode = (ushort)(memory[PC++] << 8 | memory[PC++]);
                 OpcodeData opcode = new OpcodeData
                 {
-                    Opcode = fetchedOpcode,
+                    FullOpcode = fetchedOpcode,
                     NNN = (ushort)(fetchedOpcode & 0x0FFF),
                     X = (byte)((fetchedOpcode & 0x0F00) >> 8),
                     Y = (byte)((fetchedOpcode & 0x00F0) >> 4),
@@ -79,7 +82,7 @@ namespace Emulator
                     N = (byte)(fetchedOpcode & 0x000F)
                 };
 
-                Console.WriteLine($"{opcode.Opcode:X}");
+                Console.WriteLine($"{opcode.FullOpcode:X}");
                 DecodeAndExecute(opcode);
             }
         }
@@ -87,7 +90,7 @@ namespace Emulator
         private void DecodeAndExecute(OpcodeData opcode)
         {
             // evaluate first nibble (four bits)
-            switch (opcode.Opcode & 0xF000)
+            switch (opcode.FullOpcode & 0xF000)
             {
                 case 0x0:
                     // further evaluate second byte to determine instruction
@@ -226,6 +229,7 @@ namespace Emulator
                     // DXYN - draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and height of N pixels;
                     // each row of 8 pixels is read as bit-coded starting from memory location I;
                     // VF is set to 1 if any screen pixels are flipped from set to unset when sprite is drawn, 0 if not
+
                     break;
                 case 0xE000:
                     // further evaluate last byte to determine instruction
@@ -233,9 +237,17 @@ namespace Emulator
                     {
                         case 0x9E:
                             // EX9E - skip next instruction if key stored in VX is pressed
+                            if (pressedKeys.Contains(V[opcode.X]))
+                            {
+                                PC += 2;
+                            }
                             break;
                         case 0xA1:
                             // EXA1 - skip next instruction if key stored in VX isn't pressed
+                            if (!pressedKeys.Contains(V[opcode.X]))
+                            {
+                                PC += 2;
+                            }
                             break;
                         default:
                             throw new Exception("Invalid instruction!");

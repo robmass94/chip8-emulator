@@ -72,7 +72,7 @@ namespace Emulator
                     N = (byte)(fetchedOpcode & 0x000F)
                 };
 
-                Console.WriteLine($"{opcode.Opcode:X}");
+                Console.WriteLine($"{opcode.FullOpcode:X}");
                 _decodeAndExecute(opcode);
             }
         }

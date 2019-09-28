@@ -18,3 +18,4 @@ C:\Users\rmassicotte\Documents\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emul
 C:\Users\rmassicotte\Documents\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.runtimeconfig.dev.json
 C:\Users\rmassicotte\Documents\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.dll
 C:\Users\rmassicotte\Documents\chip8-emulator\bin\Debug\netcoreapp2.0\chip8-emulator.pdb
+E:\chip8-emulator\obj\Debug\netcoreapp2.0\chip8-emulator.csprojAssemblyReference.cache

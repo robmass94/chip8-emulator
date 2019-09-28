@@ -64,7 +64,7 @@ namespace Emulator
                 ushort fetchedOpcode = (ushort)(memory[PC++] << 8 | memory[PC++]);
                 OpcodeData opcode = new OpcodeData
                 {
-                    Opcode = fetchedOpcode,
+                    FullOpcode = fetchedOpcode,
                     NNN = (ushort)(fetchedOpcode & 0x0FFF),
                     X = (byte)((fetchedOpcode & 0x0F00) >> 8),
                     Y = (byte)((fetchedOpcode & 0x00F0) >> 4),
@@ -80,7 +80,7 @@ namespace Emulator
         private void _decodeAndExecute(OpcodeData opcode)
         {
             // evaluate first nibble (four bits)
-            switch (opcode.Opcode & 0xF000)
+            switch (opcode.FullOpcode & 0xF000)
             {
                 case 0x0:
                     // further evaluate second byte to determine instruction
@@ -151,6 +151,7 @@ namespace Emulator
                     // DXYN - draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and height of N pixels;
                     // each row of 8 pixels is read as bit-coded starting from memory location I;
                     // VF is set to 1 if any screen pixels are flipped from set to unset when sprite is drawn, 0 if not
+
                     break;
                 case 0xE000:
                     // further evaluate last byte to determine instruction

@@ -9,3 +9,14 @@ E:\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.AssemblyInfoInputs.cach
 E:\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.AssemblyInfo.cs
 E:\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.dll
 E:\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.pdb
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.exe
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.deps.json
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.runtimeconfig.json
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.runtimeconfig.dev.json
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.dll
+C:\Users\rmassicotte\Desktop\chip8-emulator\bin\Debug\netcoreapp3.0\chip8-emulator.pdb
+C:\Users\rmassicotte\Desktop\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.csprojAssemblyReference.cache
+C:\Users\rmassicotte\Desktop\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.AssemblyInfoInputs.cache
+C:\Users\rmassicotte\Desktop\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.AssemblyInfo.cs
+C:\Users\rmassicotte\Desktop\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.dll
+C:\Users\rmassicotte\Desktop\chip8-emulator\obj\Debug\netcoreapp3.0\chip8-emulator.pdb

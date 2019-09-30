@@ -151,6 +151,30 @@ namespace Emulator
                     // DXYN - draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and height of N pixels;
                     // each row of 8 pixels is read as bit-coded starting from memory location I;
                     // VF is set to 1 if any screen pixels are flipped from set to unset when sprite is drawn, 0 if not
+                    byte x = V[opcode.X];
+                    byte y = V[opcode.Y];
+                    V[0xF] = 0;
+                    
+                    for (int i = 0; i < opcode.N; ++i)
+                    {
+                        byte row = memory[I + i];
+                        byte mask = 0x80;
+                        for (int j = 0; j < 8; ++j)
+                        {
+                            bool bit = Convert.ToBoolean(row & mask);
+                            mask >>= 1;
+
+                            bool currentPixel = graphics[x + j, y + i];
+
+                            if (currentPixel != bit)
+                            {
+                                V[0xF] = 1;
+                            }
+
+                            graphics[x + j, y + i] = bit;
+                            Console.WriteLine(bit);
+                        }
+                    }
 
                     break;
                 case 0xE000:

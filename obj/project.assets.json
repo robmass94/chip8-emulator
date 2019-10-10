@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\chip8-emulator.csproj",
+      "projectUniqueName": "c:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\chip8-emulator.csproj",
       "projectName": "chip8-emulator",
-      "projectPath": "C:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\chip8-emulator.csproj",
+      "projectPath": "c:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\chip8-emulator.csproj",
       "packagesPath": "C:\\Users\\rmassicotte\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\obj\\",
+      "outputPath": "c:\\Users\\rmassicotte\\Desktop\\chip8-emulator\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

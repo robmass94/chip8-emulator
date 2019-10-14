@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 
-namespace Emulator 
+namespace Emulator
 {
     class Emulator
     {
-        private byte[] memory;
-        private bool[,] graphics;
         private const byte SCREEN_WIDTH = 64;
         private const byte SCREEN_HEIGHT = 32;
         private const byte SPRITE_WIDTH = 8;
+        private byte[] memory;
+        private bool[,] graphics;
         private byte[] V; // general purpose registers V0 through VE, carry register VF
-        private byte delayTimer;
-        private byte soundTimer;
-        // private byte key;
         private ushort I; // index register
         private ushort PC; // program counter
         private ushort[] stack;
         private ushort SP; // stack pointer
+        private byte delayTimer;
+        private byte soundTimer;
+        private bool drawFlag;
+        private byte[] keys;
         private byte[] fontSet = 
         {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -41,22 +41,25 @@ namespace Emulator
         };
         private Dictionary<ConsoleKey, byte> mappedKeys = new Dictionary<ConsoleKey, byte>
         {
-            [ConsoleKey.Q] = 0x0,
-            [ConsoleKey.W] = 0x1,
-            [ConsoleKey.E] = 0x2,
-            [ConsoleKey.R] = 0x3,
-            [ConsoleKey.T] = 0x4,
-            [ConsoleKey.Y] = 0x5,
-            [ConsoleKey.U] = 0x6,
-            [ConsoleKey.I] = 0x7,
-            [ConsoleKey.O] = 0x8,
-            [ConsoleKey.P] = 0x9,
-            [ConsoleKey.A] = 0xA,
-            [ConsoleKey.S] = 0xB,
-            [ConsoleKey.D] = 0xC,
-            [ConsoleKey.F] = 0xD,
-            [ConsoleKey.G] = 0xE,
-            [ConsoleKey.H] = 0xF
+            [ConsoleKey.D1] = 0x1,
+            [ConsoleKey.D2] = 0x2,
+            [ConsoleKey.D3] = 0x3,
+            [ConsoleKey.D4] = 0xC,
+
+            [ConsoleKey.Q] = 0x4,
+            [ConsoleKey.W] = 0x5,
+            [ConsoleKey.E] = 0x6,
+            [ConsoleKey.R] = 0xD,
+
+            [ConsoleKey.A] = 0x7,
+            [ConsoleKey.S] = 0x8,
+            [ConsoleKey.D] = 0x9,
+            [ConsoleKey.F] = 0xE,
+
+            [ConsoleKey.Z] = 0xA,
+            [ConsoleKey.X] = 0x0,
+            [ConsoleKey.C] = 0xB,
+            [ConsoleKey.V] = 0xF
         };
 
         public Emulator(string pathToROM)
@@ -65,12 +68,14 @@ namespace Emulator
             graphics = new bool[SCREEN_HEIGHT, SCREEN_WIDTH];
             V = new byte[16];
             stack = new ushort[16];
+            keys = new byte[16];
 
             I = 0;
             PC = 0x200;
             SP = 0;
             delayTimer = 0;
             soundTimer = 0;
+            drawFlag = false;
 
             fontSet.CopyTo(memory, 0);
             File.ReadAllBytes(pathToROM).CopyTo(memory, 512);
@@ -78,14 +83,7 @@ namespace Emulator
 
         public void Start()
         {
-            var instructionThread = new Thread(_handleInstructions);
-            var graphicsThread = new Thread(_drawGraphics);
-            instructionThread.Start();
-            // graphicsThread.Start();
-        }
-
-        private void _handleInstructions()
-        {
+            Console.CursorVisible = false;
             while (true)
             {
                 // fetch opcode
@@ -100,8 +98,31 @@ namespace Emulator
                     N = (byte)(fetchedOpcode & 0x000F)
                 };
 
-                Console.WriteLine($"{opcode.FullOpcode:X4}");
+                // Console.WriteLine($"{opcode.FullOpcode:X4}");
                 _decodeAndExecute(opcode);
+
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                    if (mappedKeys.TryGetValue(keyInfo.Key, out byte value))
+                    {
+                        for (int i = 0; i < keys.Length; ++i)
+                        {
+                            keys[i] = 0;
+                        }
+                        keys[value] = 0xF;
+                    }
+                }
+
+                if (drawFlag)
+                {
+                    _drawGraphics();
+                }
+
+                if (delayTimer > 0)
+                {
+                    --delayTimer;
+                }
             }
         }
 
@@ -194,11 +215,15 @@ namespace Emulator
 
                             if (bit)
                             {
-                                graphics[y + i, x + j] = bit;
+                                if (graphics[y + i, x + j])
+                                {
+                                    V[0xF] =  1;
+                                }
+                                graphics[y + i, x + j] ^= true;
                             }
                         }
                     }
-
+                    drawFlag = true;
                     break;
                 case 0xE000:
                     // further evaluate last byte to determine instruction
@@ -226,6 +251,7 @@ namespace Emulator
                             graphics[i, j] = false;
                         }
                     }
+                    drawFlag = true;
                     break;
                 case 0x0EE:
                     // 00EE - return from subroutine
@@ -297,11 +323,17 @@ namespace Emulator
             {
                 case 0x9E:
                     // EX9E - skip next instruction if key stored in VX is pressed
-                    PC += 2;
+                    if (keys[V[X]] == 0xF)
+                    {
+                        PC += 2;
+                    }
                     break;
                 case 0xA1:
                     // EXA1 - skip next instruction if key stored in VX isn't pressed
-                    PC += 2;
+                    if (keys[V[X]] == 0)
+                    {
+                        PC += 2;
+                    }
                     break;
                 default:
                     throw new Exception("Invalid instruction!");
@@ -320,10 +352,10 @@ namespace Emulator
                     // FX0A - await key press, then store in VX
                     if (Console.KeyAvailable)
                     {
-                        ConsoleKeyInfo keyInfo = Console.ReadKey();
-                        if (mappedKeys.TryGetValue(keyInfo.Key, out byte pressedKey))
+                        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                        if (mappedKeys.TryGetValue(keyInfo.Key, out byte value))
                         {
-                            V[X] = pressedKey;
+                            V[X] = value;
                         }
                         else
                         {
@@ -388,6 +420,7 @@ namespace Emulator
                 Console.WriteLine();
             }
             Console.SetCursorPosition(0, 0);
+            drawFlag = false;
         }
     }
 }

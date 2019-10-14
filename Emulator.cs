@@ -20,7 +20,7 @@ namespace Emulator
         private byte soundTimer;
         private bool drawFlag;
         private byte[] keys;
-        private byte[] fontSet = 
+        private byte[] fontSet =
         {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -113,6 +113,13 @@ namespace Emulator
                         keys[value] = 0xF;
                     }
                 }
+                else
+                {
+                    for (int i = 0; i < keys.Length; ++i)
+                    {
+                        keys[i] = 0;
+                    }
+                }
 
                 if (drawFlag)
                 {
@@ -203,7 +210,7 @@ namespace Emulator
                     byte x = V[opcode.X];
                     byte y = V[opcode.Y];
                     V[0xF] = 0;
-                    
+
                     for (byte i = 0; i < opcode.N; ++i)
                     {
                         byte row = memory[I + i];
@@ -217,7 +224,7 @@ namespace Emulator
                             {
                                 if (graphics[y + i, x + j])
                                 {
-                                    V[0xF] =  1;
+                                    V[0xF] = 1;
                                 }
                                 graphics[y + i, x + j] ^= true;
                             }

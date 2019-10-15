@@ -130,6 +130,15 @@ namespace Emulator
                 {
                     --delayTimer;
                 }
+
+                if (soundTimer > 0)
+                {
+                    if (soundTimer == 1)
+                    {
+                        Console.Beep();
+                    }
+                    --soundTimer;
+                }
             }
         }
 
